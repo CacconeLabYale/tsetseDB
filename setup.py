@@ -12,7 +12,7 @@ readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 requirements = [
-    # TODO: put package requirements here
+    'SQLAlchemy'
 ]
 
 test_requirements = [
@@ -34,7 +34,7 @@ setup(
                  'tsetseDB'},
     include_package_data=True,
     install_requires=requirements,
-    license="BSD",
+    license="MIT",
     zip_safe=False,
     keywords='tsetseDB',
     classifiers=[
