@@ -49,6 +49,7 @@ class Fly(base):
     id = Column("fly_id", types.Integer, primary_key=True)
     created_on = Column("created_on", types.DateTime)
     modified_on = Column("modified_on", types.DateTime)
+    # TODO: convert docstring column descriptions into Column Objects with correct datatypes
 
 
 class Village(base):
@@ -66,6 +67,7 @@ class Village(base):
     id = Column("village_id", types.Integer, primary_key=True)
     created_on = Column("created_on", types.DateTime)
     modified_on = Column("modified_on", types.DateTime)
+    # TODO: convert docstring column descriptions into Column Objects with correct datatypes
 
 
 class Trap(base):
@@ -83,6 +85,7 @@ class Trap(base):
     id = Column("trap_id", types.Integer, primary_key=True)
     created_on = Column("created_on", types.DateTime)
     modified_on = Column("modified_on", types.DateTime)
+    # TODO: convert docstring column descriptions into Column Objects with correct datatypes
 
 
 class Tube(base):
@@ -94,6 +97,7 @@ class Tube(base):
     id = Column("tube_id", types.Integer, primary_key=True)
     created_on = Column("created_on", types.DateTime)
     modified_on = Column("modified_on", types.DateTime)
+    # TODO: convert docstring column descriptions into Column Objects with correct datatypes
 
 
 class Box(base):
@@ -105,3 +109,4 @@ class Box(base):
     id = Column("box_id", types.Integer, primary_key=True)
     created_on = Column("created_on", types.DateTime)
     modified_on = Column("modified_on", types.DateTime)
+    # TODO: convert docstring column descriptions into Column Objects with correct datatypes
