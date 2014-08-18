@@ -25,7 +25,7 @@ base = declarative_base()
 
 class Fly(base):
     """
-    Table class to represent data associated with individual flies:
+    Table class to store data associated with individual flies:
     - id (int)
     - location_symbol (str)
     - collection_number (int)
@@ -53,7 +53,7 @@ class Fly(base):
 
 class Village(base):
     """
-    Table class to represent data associated with a single village:
+    Table class to store data associated with a single village:
     - id (int)
     - district
     - county
@@ -70,7 +70,7 @@ class Village(base):
 
 class Trap(base):
     """
-    Table class to represent data associated with a single trap:
+    Table class to store data associated with a single trap:
     - id (int)
     - season (wet|dry)
     - deploy_date
@@ -87,7 +87,8 @@ class Trap(base):
 
 class Tube(base):
     """
-    Table class to represent data associated with
+    Table class to store data associated with a single storage tube:
+    -
     """
     __tablename__ = 'tube'
     id = Column("tube_id", types.Integer, primary_key=True)
@@ -97,7 +98,8 @@ class Tube(base):
 
 class Box(base):
     """
-
+    Table class to store data associated with a freezer box where tubes are stored:
+    -
     """
     __tablename__ = 'box'
     id = Column("box_id", types.Integer, primary_key=True)
