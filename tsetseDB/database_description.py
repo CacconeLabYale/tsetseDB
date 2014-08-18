@@ -48,10 +48,9 @@ class Fly(base):
     id = Column("fly_id", types.Integer, primary_key=True, nullable=False)
     created_on = Column("created_on", types.DateTime, nullable=False)
     modified_on = Column("modified_on", types.DateTime)
-    # TODO: convert docstring column descriptions into Column Objects with correct datatypes
-    location_symbol = Column("location_symbol", types.Text, nullable=False)
+    location_symbol = Column("location_symbol", types.Text, nullable=False, unique=True)
     collection_number = Column("collection_number", types.Integer)
-    sex = Column("location_symbol", types.Enum(['M', 'F']))
+    sex = Column("sex", types.Enum(['M', 'F']))
     species = Column("species", types.Enum(['Glossina fuscipes',
                                             'Glossina morsitans',
                                             'Glossina pallidipes']))
@@ -66,7 +65,6 @@ class Fly(base):
     # gps_coords = Column("gps_coords", types.Text, ForeignKey("trap.gps_coords"))
     teneral = Column("teneral", types.Boolean)
     comments = Column("comments", types.Text)
-
 
 
 class Village(base):
@@ -84,7 +82,12 @@ class Village(base):
     id = Column("village_id", types.Integer, primary_key=True)
     created_on = Column("created_on", types.DateTime)
     modified_on = Column("modified_on", types.DateTime)
-    # TODO: convert docstring column descriptions into Column Objects with correct datatypes
+    district = Column(types.Text)
+    county = Column(types.Text)
+    subcounty = Column(types.Text)
+    parish = Column(types.Text)
+    village_name = Column(types.Text)
+    location_symbol = Column(types.Text, unique=True, nullable=False)
 
 
 class Trap(base):
@@ -102,7 +105,12 @@ class Trap(base):
     id = Column("trap_id", types.Integer, primary_key=True)
     created_on = Column("created_on", types.DateTime)
     modified_on = Column("modified_on", types.DateTime)
-    # TODO: convert docstring column descriptions into Column Objects with correct datatypes
+    season = Column(types.Enum(['wet', 'dry']))
+    deploy_date = Column(types.Date)
+    removal_date = Column(types.Date)
+    trap_type = Column(types.Enum(['biconical']))
+    village_id = Column(types.Integer, ForeignKey("village.village_id"))
+    gps_coords = Column(types.Text)
 
 
 class Tube(base):
@@ -116,7 +124,12 @@ class Tube(base):
     id = Column("tube_id", types.Integer, primary_key=True)
     created_on = Column("created_on", types.DateTime)
     modified_on = Column("modified_on", types.DateTime)
-    # TODO: convert docstring column descriptions into Column Objects with correct datatypes
+    tissue = Column(types.Enum(['midgut',
+                                'salivary gland',
+                                'reproductive parts',
+                                'carcass',
+                                'intact fly']))
+    solution = Column(types.Text)
 
 
 class Box(base):
