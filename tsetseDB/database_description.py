@@ -26,6 +26,9 @@ base = declarative_base()
 class Fly(base):
     """
     Table class to represent data associated with individual flies:
+    - id (int)
+    - location_symbol (str)
+    - collection_number (int)
     - sex (M|F)
     - species (f|p|m)
     - hunger_stage (1|2|3)
@@ -41,7 +44,6 @@ class Fly(base):
     - tissues (ask aiden)
     - teneral (bool)
     - comments (str)
-
     """
     __tablename__ = 'fly'
     id = Column("fly_id", types.Integer, primary_key=True)
@@ -51,7 +53,14 @@ class Fly(base):
 
 class Village(base):
     """
-    Table class to represent data associated with
+    Table class to represent data associated with a single village:
+    - id (int)
+    - district
+    - county
+    - subcounty
+    - parish
+    - name
+
     """
     __tablename__ = 'village'
     id = Column("village_id", types.Integer, primary_key=True)
@@ -59,12 +68,19 @@ class Village(base):
     modified_on = Column("modified_on", types.DateTime)
 
 
-class Site(base):
+class Trap(base):
     """
-    Table class to represent data associated with
+    Table class to represent data associated with a single trap:
+    - id (int)
+    - season (wet|dry)
+    - deploy_date
+    - removal_date
+    - trap_type (biconical|other?)
+    - village_id (ForKey?)
+    -
     """
-    __tablename__ = 'site'
-    id = Column("site_id", types.Integer, primary_key=True)
+    __tablename__ = 'trap'
+    id = Column("trap_id", types.Integer, primary_key=True)
     created_on = Column("created_on", types.DateTime)
     modified_on = Column("modified_on", types.DateTime)
 
@@ -77,6 +93,7 @@ class Tube(base):
     id = Column("tube_id", types.Integer, primary_key=True)
     created_on = Column("created_on", types.DateTime)
     modified_on = Column("modified_on", types.DateTime)
+
 
 class Box(base):
     """
