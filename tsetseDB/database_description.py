@@ -33,23 +33,40 @@ class Fly(base):
     - species (f|p|m)
     - hunger_stage (1|2|3)
     - wing_fray (int)
-    - stored_in (str)
     - box_id (ForeignKey?)
     - infected (bool)
     - tryps_by_scope (bool)
     - tryps_by_pcr (bool)
-    - collection_date (date)
+    - date_of_collection (date)
     - trap_id (int, ForeignKey?)
-    - gps_coords (link to TrapTable)
+    - gps_coords (link to TrapTable) (or would I just do a specific join whenever I want this?)
     - tissues (ask aiden)
     - teneral (bool)
     - comments (str)
     """
     __tablename__ = 'fly'
-    id = Column("fly_id", types.Integer, primary_key=True)
-    created_on = Column("created_on", types.DateTime)
+    id = Column("fly_id", types.Integer, primary_key=True, nullable=False)
+    created_on = Column("created_on", types.DateTime, nullable=False)
     modified_on = Column("modified_on", types.DateTime)
     # TODO: convert docstring column descriptions into Column Objects with correct datatypes
+    location_symbol = Column("location_symbol", types.Text, nullable=False)
+    collection_number = Column("collection_number", types.Integer)
+    sex = Column("location_symbol", types.Enum(['M', 'F']))
+    species = Column("species", types.Enum(['Glossina fuscipes',
+                                            'Glossina morsitans',
+                                            'Glossina pallidipes']))
+    hunger_stage = Column("hunger_stage", types.Enum([1, 2, 3, 4]))
+    wing_fray = Column("wing_fray", types.Enum([1, 2, 3, 4]))
+    box_id = Column("box_id", types.Integer, ForeignKey("box.box_id"))
+    infected = Column("infected", types.Boolean)
+    tryps_by_scope = Column("tryps_by_scope", types.Boolean)
+    tryps_by_pcr = Column("tryps_by_pcr", types.Boolean)
+    date_of_collection = Column("date_of_collection", types.Date)
+    trap_id = Column("trap_id", types.Integer, ForeignKey("trap.trap_id"))
+    # gps_coords = Column("gps_coords", types.Text, ForeignKey("trap.gps_coords"))
+    teneral = Column("teneral", types.Boolean)
+    comments = Column("comments", types.Text)
+
 
 
 class Village(base):
@@ -78,8 +95,8 @@ class Trap(base):
     - deploy_date
     - removal_date
     - trap_type (biconical|other?)
-    - village_id (ForKey?)
-    -
+    - village_id (ForgnKey?)
+    - gps_coords (Text)
     """
     __tablename__ = 'trap'
     id = Column("trap_id", types.Integer, primary_key=True)
@@ -91,7 +108,9 @@ class Trap(base):
 class Tube(base):
     """
     Table class to store data associated with a single storage tube:
-    -
+    - tissue
+    - solution
+
     """
     __tablename__ = 'tube'
     id = Column("tube_id", types.Integer, primary_key=True)
