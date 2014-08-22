@@ -10,7 +10,6 @@ Tests for `tsetseDB` module.
 
 import unittest
 
-from tsetseDB import tsetseDB
 
 
 class TestTsetsedb(unittest.TestCase):
