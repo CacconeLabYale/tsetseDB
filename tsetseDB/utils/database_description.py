@@ -17,14 +17,17 @@ import os
 import sys
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import types, schema
+from sqlalchemy import types
 from sqlalchemy.engine import create_engine
 
+from tsetseDB.utils import errors
+from tsetseDB.utils import constants
 
-base = declarative_base()
+
+Base = declarative_base()
 
 
-class Fly(base):
+class Fly(Base):
     """
     Table class to store data associated with individual flies:
     - id (int)
@@ -50,24 +53,21 @@ class Fly(base):
     modified_on = Column("modified_on", types.DateTime)
     location_symbol = Column("location_symbol", types.Text, nullable=False, unique=True)
     collection_number = Column("collection_number", types.Integer)
-    sex = Column("sex", types.Enum(['M', 'F']))
-    species = Column("species", types.Enum(['Glossina fuscipes',
-                                            'Glossina morsitans',
-                                            'Glossina pallidipes']))
-    hunger_stage = Column("hunger_stage", types.Enum([1, 2, 3, 4]))
-    wing_fray = Column("wing_fray", types.Enum([1, 2, 3, 4]))
+    sex = Column("sex", types.Enum('M', 'F'))
+    species = Column("species", types.Enum(*constants.species_names))
+    hunger_stage = Column("hunger_stage", types.Enum('1', '2', '3', '4'))
+    wing_fray = Column("wing_fray", types.Enum('1', '2', '3', '4'))
     box_id = Column("box_id", types.Integer, ForeignKey("box.box_id"))
     infected = Column("infected", types.Boolean)
     tryps_by_scope = Column("tryps_by_scope", types.Boolean)
     tryps_by_pcr = Column("tryps_by_pcr", types.Boolean)
     date_of_collection = Column("date_of_collection", types.Date)
     trap_id = Column("trap_id", types.Integer, ForeignKey("trap.trap_id"))
-    # gps_coords = Column("gps_coords", types.Text, ForeignKey("trap.gps_coords"))
     teneral = Column("teneral", types.Boolean)
     comments = Column("comments", types.Text)
 
 
-class Village(base):
+class Village(Base):
     """
     Table class to store data associated with a single village:
     - id (int)
@@ -89,7 +89,7 @@ class Village(base):
     village_name = Column(types.Text)
 
 
-class Trap(base):
+class Trap(Base):
     """
     Table class to store data associated with a single trap:
     - id (int)
@@ -104,15 +104,15 @@ class Trap(base):
     id = Column("trap_id", types.Integer, primary_key=True)
     created_on = Column("created_on", types.DateTime)
     modified_on = Column("modified_on", types.DateTime)
-    season = Column(types.Enum(['wet', 'dry']))
+    season = Column(types.Enum('wet', 'dry'))
     deploy_date = Column(types.Date)
     removal_date = Column(types.Date)
-    trap_type = Column(types.Enum(['biconical']))
+    trap_type = Column(types.Enum('biconical'))
     village_id = Column(types.Text, ForeignKey("village.village_id"))
     gps_coords = Column(types.Text)
 
 
-class Tube(base):
+class Tube(Base):
     """
     Table class to store data associated with a single storage tube:
     - tissue
@@ -123,17 +123,17 @@ class Tube(base):
     id = Column("tube_id", types.Integer, primary_key=True)
     created_on = Column("created_on", types.DateTime)
     modified_on = Column("modified_on", types.DateTime)
-    tissue = Column(types.Enum(['midgut',
-                                'salivary gland',
-                                'reproductive parts',
-                                'carcass',
-                                'intact fly']))
+    tissue = Column(types.Enum('midgut',
+                               'salivary gland',
+                               'reproductive parts',
+                               'carcass',
+                               'intact fly'))
     solution = Column(types.Text)
     fly_id = Column(types.Integer, ForeignKey("fly.fly_id"))
     box_id = Column(types.Integer, ForeignKey("box.box_id"))
 
 
-class Box(base):
+class Box(Base):
     """
     Table class to store data associated with a freezer box where tubes are stored:
     - freezer
@@ -150,10 +150,7 @@ class Box(base):
 
 
 def get_engine(db_uri):
-    engine = create_engine(db_uri, echo=False)
-    metadata = schema.MetaData()
+    engine = create_engine(db_uri, echo=True)
+    Base.metadata.create_all(bind=engine, checkfirst=True)
 
-    metadata.bind(engine)
-    metadata.create_all(checkfirst=True)
-
-    return engine, metadata
+    return engine, Base.metadata
