@@ -2,17 +2,16 @@
 # -*- coding: utf-8 -*-
 
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup, find_packages
 
 
 readme = open('README.rst').read()
 history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 
 requirements = [
-    'SQLAlchemy'
+    'setuptools',
+    'SQLAlchemy',
+    'bunch'
 ]
 
 test_requirements = [
@@ -27,11 +26,9 @@ setup(
     author='Gus Dunn',
     author_email='wadunn83@gmail.com',
     url='https://github.com/xguse/tsetseDB',
-    packages=[
-        'tsetseDB',
-    ],
-    package_dir={'tsetseDB':
-                 'tsetseDB'},
+    packages=find_packages('tsetseDB'),
+    package_dir={'': 'tsetseDB'},
+    package_data={'tsetseDB': ['data/']},
     include_package_data=True,
     install_requires=requirements,
     license="MIT",

@@ -20,14 +20,35 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import types
 from sqlalchemy.engine import create_engine
 
-from tsetseDB.utils import errors
 from tsetseDB.utils import constants
 
 
 Base = declarative_base()
 
 
-class Fly(Base):
+class MixinBase(object):
+    @declared_attr
+    def created_when(cls):
+        return Column(types.DateTime, nullable=False)
+
+    @declared_attr
+    def modified_when(cls):
+        Column(types.DateTime)
+
+    @declared_attr
+    def needs_attention(cls):
+        Column(types.Boolean, default=False, nullable=False)
+
+    @declared_attr
+    def alert_comments(cls):
+        Column(types.Text)
+
+    @declared_attr
+    def comments(cls):
+        Column(types.Text)
+
+
+class Fly(Base, MixinBase):
     """
     Table class to store data associated with individual flies:
     - id (int)
@@ -49,8 +70,6 @@ class Fly(Base):
     """
     __tablename__ = 'fly'
     id = Column("fly_id", types.Integer, primary_key=True, nullable=False)
-    created_on = Column("created_on", types.DateTime, nullable=False)
-    modified_on = Column("modified_on", types.DateTime)
     location_symbol = Column("location_symbol", types.Text, nullable=False, unique=True)
     collection_number = Column("collection_number", types.Integer)
     sex = Column("sex", types.Enum('M', 'F'))
@@ -67,7 +86,7 @@ class Fly(Base):
     comments = Column("comments", types.Text)
 
 
-class Village(Base):
+class Village(Base, MixinBase):
     """
     Table class to store data associated with a single village:
     - id (int)
@@ -75,13 +94,11 @@ class Village(Base):
     - county
     - subcounty
     - parish
-    - name
+    - village_name
 
     """
     __tablename__ = 'village'
     id = Column("village_id", types.Text, primary_key=True)
-    created_on = Column("created_on", types.DateTime)
-    modified_on = Column("modified_on", types.DateTime)
     district = Column(types.Text)
     county = Column(types.Text)
     subcounty = Column(types.Text)
@@ -89,7 +106,7 @@ class Village(Base):
     village_name = Column(types.Text)
 
 
-class Trap(Base):
+class Trap(Base, MixinBase):
     """
     Table class to store data associated with a single trap:
     - id (int)
@@ -99,20 +116,20 @@ class Trap(Base):
     - trap_type (biconical|other?)
     - village_id (ForgnKey?)
     - gps_coords (Text)
+    - elevation (float)
     """
     __tablename__ = 'trap'
     id = Column("trap_id", types.Integer, primary_key=True)
-    created_on = Column("created_on", types.DateTime)
-    modified_on = Column("modified_on", types.DateTime)
     season = Column(types.Enum('wet', 'dry'))
     deploy_date = Column(types.Date)
     removal_date = Column(types.Date)
     trap_type = Column(types.Enum('biconical'))
     village_id = Column(types.Text, ForeignKey("village.village_id"))
     gps_coords = Column(types.Text)
+    elevation = Column(types.Float)
 
 
-class Tube(Base):
+class Tube(Base, MixinBase):
     """
     Table class to store data associated with a single storage tube:
     - tissue
@@ -121,8 +138,6 @@ class Tube(Base):
     """
     __tablename__ = 'tube'
     id = Column("tube_id", types.Integer, primary_key=True)
-    created_on = Column("created_on", types.DateTime)
-    modified_on = Column("modified_on", types.DateTime)
     tissue = Column(types.Enum('midgut',
                                'salivary gland',
                                'reproductive parts',
@@ -133,7 +148,7 @@ class Tube(Base):
     box_id = Column(types.Integer, ForeignKey("box.box_id"))
 
 
-class Box(Base):
+class Box(Base, MixinBase):
     """
     Table class to store data associated with a freezer box where tubes are stored:
     - freezer
@@ -142,8 +157,6 @@ class Box(Base):
     """
     __tablename__ = 'box'
     id = Column("box_id", types.Integer, primary_key=True)
-    created_on = Column("created_on", types.DateTime)
-    modified_on = Column("modified_on", types.DateTime)
     room = Column(types.Text)
     freezer = Column(types.Text)
     freezer_loc = Column(types.Text)
