@@ -45,15 +45,15 @@ def convert_species_name(cell_string, file_name):
         raise
 
 
-def convert_date_dd_mm_yy(cell_string, file_name):
+def convert_date_dd_mm_yy(date_string, file_name=None):
     """
     Given a date string similar to day/month/year, return date string formatted as YYYY-MM-DD.
-    :param cell_string:
+    :param date_string:
     :param file_name:
     :return:
     """
 
-    d = cell_string.lstrip("'")
+    d = date_string.lstrip("'")
     d1 = list(reversed([int(x) for x in re.findall(r"[\d']+", d)]))
 
     if len(str(d1[0])) >= 2:
@@ -64,10 +64,10 @@ def convert_date_dd_mm_yy(cell_string, file_name):
     return date.format("YYYY-MM-DD")
 
 
-def convert_tube_code(cell_string, file_name):
+def convert_tube_code(tube_string, file_name):
     """
     Given a date string similar to day/month/year, return date string formatted as YYYY-MM-DD.
-    :param cell_string:
+    :param tube_string:
     :param file_name:
     :return:
     """

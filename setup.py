@@ -11,7 +11,13 @@ history = open('HISTORY.rst').read().replace('.. :changelog:', '')
 requirements = [
     'setuptools',
     'SQLAlchemy',
-    'bunch'
+    'bunch',
+    'wheel',
+    #'spartan==0.0.1'
+]
+
+dependency_links = [
+    #"git+ssh://git@github.com:xguse/spartan.git@dev#egg=spartan-0.0.1",
 ]
 
 test_requirements = [
@@ -26,11 +32,12 @@ setup(
     author='Gus Dunn',
     author_email='wadunn83@gmail.com',
     url='https://github.com/xguse/tsetseDB',
-    packages=find_packages('tsetseDB'),
-    package_dir={'': 'tsetseDB'},
-    package_data={'tsetseDB': ['data/']},
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
+    package_data={'': ['data/']},
     include_package_data=True,
     install_requires=requirements,
+    dependency_links=dependency_links,
     license="MIT",
     zip_safe=False,
     keywords='tsetseDB',

@@ -13,8 +13,6 @@ Purpose:
 
 __author__ = 'Gus Dunn'
 
-import os
-import sys
 from sqlalchemy import Column, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import types

@@ -15,6 +15,25 @@
 
 import sys
 import os
+# -- AD added ------------------------------------------------------------------
+import sphinx_rtd_theme
+import tsetseDB
+
+autodoc_member_order = 'group-wise'
+autodoc_default_flags = ['members', 'private-members', 'attribute']
+
+
+#googleanalytics_id = 'UA-39589366-1'
+
+
+def skip(app, what, name, obj, skip, options):
+    if name == "__init__":
+        return False
+    return skip
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip)
+
 
 # If extensions (or modules to document with autodoc) are in another
 # directory, add these directories to sys.path here. If the directory is
@@ -30,8 +49,6 @@ project_root = os.path.dirname(cwd)
 # This lets us ensure that the source package is imported, and that its
 # version is used.
 sys.path.insert(0, project_root)
-
-import tsetseDB
 
 # -- General configuration ---------------------------------------------
 
@@ -111,7 +128,7 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = 'default'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see the
@@ -119,7 +136,7 @@ html_theme = 'default'
 #html_theme_options = {}
 
 # Add any paths that contain custom themes here, relative to this directory.
-#html_theme_path = []
+html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
