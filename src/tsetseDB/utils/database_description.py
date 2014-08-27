@@ -24,6 +24,13 @@ from tsetseDB.utils import constants
 Base = declarative_base()
 
 
+def get_engine(db_uri):
+    engine = create_engine(db_uri, echo=True)
+    Base.metadata.create_all(bind=engine, checkfirst=True)
+
+    return engine, Base.metadata
+
+
 class MixinBase(object):
     @declared_attr
     def created_when(cls):
@@ -44,6 +51,19 @@ class MixinBase(object):
     @declared_attr
     def comments(cls):
         Column(types.Text)
+
+
+
+class Note(Base, MixinBase):
+    """
+    Table class to store notes regarding any row on any table.  The relationships will be defined in table-specific
+    note-tables that record the foreign-keys of the associated row-types.
+    - note_id
+    - note_text
+    """
+    __tablename__ = 'note'
+    id = Column("note_id", types.Integer, primary_key=True)
+    note_text = Column(types.Text, nullable=False)
 
 
 class Fly(Base, MixinBase):
@@ -84,6 +104,17 @@ class Fly(Base, MixinBase):
     comments = Column("comments", types.Text)
 
 
+class FlyNote(Base, MixinBase):
+    """
+    Table class to store relationships between which rows in "note" table pertain to which rows in "fly" table.
+    - fly_note_id
+    - fly_id
+    """
+    __tablename__ = 'fly_note'
+    id = Column("fly_note_id", types.Integer, primary_key=True, nullable=False)
+    fly_id = Column(types.Integer, ForeignKey("fly.fly_id"))
+
+
 class Village(Base, MixinBase):
     """
     Table class to store data associated with a single village:
@@ -102,6 +133,17 @@ class Village(Base, MixinBase):
     subcounty = Column(types.Text)
     parish = Column(types.Text)
     village_name = Column(types.Text)
+
+
+class VillageNote(Base, MixinBase):
+    """
+    Table class to store relationships between which rows in "note" table pertain to which rows in "village" table.
+    - village_note_id
+    - village_id
+    """
+    __tablename__ = 'village_note'
+    id = Column("village_note_id", types.Integer, primary_key=True, nullable=False)
+    village_id = Column(types.Text, ForeignKey("village.village_id"))
 
 
 class Trap(Base, MixinBase):
@@ -127,23 +169,48 @@ class Trap(Base, MixinBase):
     elevation = Column(types.Float)
 
 
+class TrapNote(Base, MixinBase):
+    """
+    Table class to store relationships between which rows in "note" table pertain to which rows in "trap" table.
+    - trap_note_id
+    - trap_id
+    """
+    __tablename__ = 'trap_note'
+    id = Column("trap_note_id", types.Integer, primary_key=True, nullable=False)
+    trap_id = Column(types.Integer, ForeignKey("trap.trap_id"))
+    
+
 class Tube(Base, MixinBase):
     """
     Table class to store data associated with a single storage tube:
-    - tissue
+    - contents
     - solution
     - fly_id
     """
     __tablename__ = 'tube'
     id = Column("tube_id", types.Integer, primary_key=True)
-    tissue = Column(types.Enum('midgut',
-                               'salivary gland',
-                               'reproductive parts',
-                               'carcass',
-                               'intact fly'))
+    contents = Column(types.Enum('midgut',
+                                 'salivary gland',
+                                 'reproductive parts',
+                                 'carcass',
+                                 'intact fly',
+                                 'DNA',
+                                 'RNA'))
     solution = Column(types.Text)
     fly_id = Column(types.Integer, ForeignKey("fly.fly_id"))
     box_id = Column(types.Integer, ForeignKey("box.box_id"))
+    parent_id = Column(types.Integer, ForeignKey("tube.tube_id"))
+
+
+class TubeNote(Base, MixinBase):
+    """
+    Table class to store relationships between which rows in "note" table pertain to which rows in "tube" table.
+    - tube_note_id
+    - tube_id
+    """
+    __tablename__ = 'tube_note'
+    id = Column("tube_note_id", types.Integer, primary_key=True, nullable=False)
+    tube_id = Column(types.Integer, ForeignKey("tube.tube_id"))
 
 
 class Box(Base, MixinBase):
@@ -160,8 +227,15 @@ class Box(Base, MixinBase):
     freezer_loc = Column(types.Text)
 
 
-def get_engine(db_uri):
-    engine = create_engine(db_uri, echo=True)
-    Base.metadata.create_all(bind=engine, checkfirst=True)
+class BoxNote(Base, MixinBase):
+    """
+    Table class to store relationships between which rows in "note" table pertain to which rows in "box" table.
+    - box_note_id
+    - box_id
+    """
+    __tablename__ = 'box_note'
+    id = Column("box_note_id", types.Integer, primary_key=True, nullable=False)
+    box_id = Column(types.Integer, ForeignKey("box.box_id"))
 
-    return engine, Base.metadata
+
+
