@@ -31,6 +31,14 @@ class SummarySheet(object):
         self.worksheet = worksheet
         self.path = workbook_path
 
+    def _build_trap_row(self, summary_sheet_row):
+        """
+        Builds data that can be added to a `trap` table.
+        :param summary_sheet_row:
+        :return:
+        """
+        raise NotImplementedError()
+
     def _validate_summary_data_format(self):
         """
         Returns `True` if `worksheet` passes format tests, `False` otherwise.
