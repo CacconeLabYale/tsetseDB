@@ -16,7 +16,7 @@ import re
 
 import arrow
 
-from tsetseDB.utils.errors import TsetseDBError
+from tsetseDB.utils import errors
 from tsetseDB.utils import constants as c
 
 # import species abbreviation to long name dictionary
@@ -40,18 +40,26 @@ def convert_species_name(cell_string, file_name):
         return species_dict[cell_string]
     except IndexError:
         msg = "Encountered unexpected species name '%s' in CSV file '%s'." % (cell_string, file_name)
-        raise TsetseDBError(msg)
+        raise errors.TsetsedbImportError(msg)
     except:
         raise
 
 
-def convert_date_dd_mm_yy(date_string, file_name=None):
+def convert_date_dd_mm_yy(date_string, return_as="YYYY-MM-DD"):
     """
     Given a date string similar to day/month/year, return date string formatted as YYYY-MM-DD.
+    :param return_as:
     :param date_string:
     :param file_name:
     :return:
     """
+
+    valid_return_as = ('YYYY-MM-DD',
+                       'datetime.date')
+
+    if return_as not in valid_return_as:
+        msg = "%s is not a valid value for `return_as`: %s" % (return_as, str(valid_return_as))
+        raise ValueError(msg)
 
     d = date_string.lstrip("'")
     d1 = list(reversed([int(x) for x in re.findall(r"[\d']+", d)]))
@@ -61,13 +69,20 @@ def convert_date_dd_mm_yy(date_string, file_name=None):
 
     date = arrow.get(*d1)
 
-    return date.format("YYYY-MM-DD")
+    if return_as == 'YYYY-MM-DD':
+        return date.format("YYYY-MM-DD")
+    elif return_as == 'datetime.date':
+        return date.date()
 
 
-def convert_tube_code(tube_string, file_name):
+def convert_tube_code(tube_string):
     """
-    Given a date string similar to day/month/year, return date string formatted as YYYY-MM-DD.
+    Given a tube_code, return the collection number alone.
     :param tube_string:
     :param file_name:
     :return:
     """
+
+    digit_words = re.findall(r"[\d']+", tube_string)
+
+    return int(digit_words[-1])
