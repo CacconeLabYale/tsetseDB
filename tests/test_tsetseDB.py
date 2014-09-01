@@ -8,20 +8,16 @@ test_tsetseDB
 Tests for `tsetseDB` module.
 """
 
-import unittest
 
 
-
-class TestTsetsedb(unittest.TestCase):
+class TestTsetseDB(unittest.TestCase):
 
     def setUp(self):
         pass
 
     def test_something(self):
-        pass
+        print "test_tsetseDB.py tests NOTHING right now."
 
     def tearDown(self):
         pass
 
-if __name__ == '__main__':
-    unittest.main()
