@@ -13,9 +13,11 @@ Purpose:
 
 __author__ = 'Gus Dunn'
 
-from sqlalchemy import Column, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import types
+from datetime import datetime
+
+from sqlalchemy import Column, ForeignKey, types
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
+from sqlalchemy.sql import functions as sqlalc_funcs
 from sqlalchemy.engine import create_engine
 
 from tsetseDB.utils import constants
@@ -24,21 +26,29 @@ from tsetseDB.utils import constants
 Base = declarative_base()
 
 
-def get_engine(db_uri):
-    engine = create_engine(db_uri, echo=True)
-    Base.metadata.create_all(bind=engine, checkfirst=True)
+def get_engine(db_uri, echo=False, checkfirst=True):
+    """
+
+    :param db_uri:
+    :param echo:
+    :param checkfirst:
+    :return:
+    """
+    engine = create_engine(db_uri, echo=echo)
+    Base.metadata.create_all(bind=engine, checkfirst=checkfirst)
 
     return engine, Base.metadata
 
 
+# noinspection PyDocstring
 class MixinBase(object):
     @declared_attr
     def created_when(cls):
-        return Column(types.DateTime, nullable=False)
+        return Column(types.DateTime, nullable=False, default=datetime.now())
 
     @declared_attr
     def modified_when(cls):
-        Column(types.DateTime)
+        Column(types.DateTime, default=datetime.now())
 
     @declared_attr
     def needs_attention(cls):
@@ -53,7 +63,6 @@ class MixinBase(object):
         Column(types.Text)
 
 
-
 class Note(Base, MixinBase):
     """
     Table class to store notes regarding any row on any table.  The relationships will be defined in table-specific
@@ -63,6 +72,7 @@ class Note(Base, MixinBase):
     """
     __tablename__ = 'note'
     id = Column("note_id", types.Integer, primary_key=True)
+    #note_class = Column(types.Enum("history", "observation", "analysis"))
     note_text = Column(types.Text, nullable=False)
 
 
@@ -70,7 +80,8 @@ class Fly(Base, MixinBase):
     """
     Table class to store data associated with individual flies:
     - id (int)
-    - location_symbol (str)
+    - fly_code (str)
+    - village_id (str)
     - collection_number (int)
     - sex (M|F)
     - species (f|p|m)
@@ -81,27 +92,34 @@ class Fly(Base, MixinBase):
     - tryps_by_scope (bool)
     - tryps_by_pcr (bool)
     - date_of_collection (date)
-    - trap_id (int, ForeignKey?)
+    - gps_coords (int, ForeignKey?)
     - gps_coords (link to TrapTable) (or would I just do a specific join whenever I want this?)
     - teneral (bool)
     - comments (str)
     """
     __tablename__ = 'fly'
+
+    infection_statuses = set(constants.infection_status_conversion.values())
+
     id = Column("fly_id", types.Integer, primary_key=True, nullable=False)
-    location_symbol = Column("location_symbol", types.Text, nullable=False, unique=True)
-    collection_number = Column("collection_number", types.Integer)
-    sex = Column("sex", types.Enum('M', 'F'))
-    species = Column("species", types.Enum(*constants.species_names))
-    hunger_stage = Column("hunger_stage", types.Enum('1', '2', '3', '4'))
-    wing_fray = Column("wing_fray", types.Enum('1', '2', '3', '4'))
-    box_id = Column("box_id", types.Integer, ForeignKey("box.box_id"))
-    infected = Column("infected", types.Boolean)
-    tryps_by_scope = Column("tryps_by_scope", types.Boolean)
-    tryps_by_pcr = Column("tryps_by_pcr", types.Boolean)
-    date_of_collection = Column("date_of_collection", types.Date)
-    trap_id = Column("trap_id", types.Integer, ForeignKey("trap.trap_id"))
-    teneral = Column("teneral", types.Boolean)
-    comments = Column("comments", types.Text)
+    fly_code = Column(types.Text, nullable=False)
+    village_id = Column(types.Text, ForeignKey("village.village_id"), nullable=False)
+    collection_number = Column(types.Integer)
+    sex = Column(types.Enum('M', 'F'))
+    species = Column(types.Enum(*constants.species_names))
+    hunger_stage = Column(types.Enum('NA', '1', '2', '3', '4'))
+    wing_fray = Column(types.Enum('NA', '1', '2', '3', '4'))
+    box_id = Column(types.Integer, ForeignKey("box.box_id"), nullable=False)
+    infected = Column(types.Boolean)
+    positive_proboscis = Column(types.Enum(*infection_statuses))
+    positive_midgut = Column(types.Enum(*infection_statuses))
+    positive_salivary_gland = Column(types.Enum(*infection_statuses))
+    tryps_by_scope = Column(types.Enum(*infection_statuses))
+    tryps_by_pcr = Column(types.Boolean)
+    date_of_collection = Column(types.Date)
+    gps_coords = Column(types.Integer, ForeignKey("trap.gps_coords"), nullable=False)
+    teneral = Column(types.Boolean)
+    comments = Column(types.Text)
 
 
 class FlyNote(Base, MixinBase):
@@ -112,7 +130,7 @@ class FlyNote(Base, MixinBase):
     """
     __tablename__ = 'fly_note'
     id = Column("fly_note_id", types.Integer, primary_key=True, nullable=False)
-    fly_id = Column(types.Integer, ForeignKey("fly.fly_id"))
+    fly_id = Column(types.Integer, ForeignKey("fly.fly_id"), nullable=False)
 
 
 class Village(Base, MixinBase):
@@ -143,7 +161,7 @@ class VillageNote(Base, MixinBase):
     """
     __tablename__ = 'village_note'
     id = Column("village_note_id", types.Integer, primary_key=True, nullable=False)
-    village_id = Column(types.Text, ForeignKey("village.village_id"))
+    village_id = Column(types.Text, ForeignKey("village.village_id"), nullable=False)
 
 
 class Trap(Base, MixinBase):
@@ -159,25 +177,29 @@ class Trap(Base, MixinBase):
     - elevation (float)
     """
     __tablename__ = 'trap'
-    id = Column("trap_id", types.Integer, primary_key=True)
+    # id should be "%s:%s" % (deploy_date, gps_coords)
+    # id = Column("trap_id", types.Text, primary_key=True)
+    trap_number = Column(types.Integer)
     season = Column(types.Enum('wet', 'dry'))
     deploy_date = Column(types.Date)
     removal_date = Column(types.Date)
     trap_type = Column(types.Enum('biconical'))
-    village_id = Column(types.Text, ForeignKey("village.village_id"))
-    gps_coords = Column(types.Text)
+    village_id = Column(types.Text, ForeignKey("village.village_id"), nullable=False)
+    gps_coords = Column(types.Text, primary_key=True)
     elevation = Column(types.Float)
+    veg_type = Column(types.Text)
+    other_info = Column(types.Text)
 
 
 class TrapNote(Base, MixinBase):
     """
     Table class to store relationships between which rows in "note" table pertain to which rows in "trap" table.
     - trap_note_id
-    - trap_id
+    - gps_coords
     """
     __tablename__ = 'trap_note'
     id = Column("trap_note_id", types.Integer, primary_key=True, nullable=False)
-    trap_id = Column(types.Integer, ForeignKey("trap.trap_id"))
+    gps_coords = Column(types.Integer, ForeignKey("trap.gps_coords"), nullable=False)
     
 
 class Tube(Base, MixinBase):
@@ -210,7 +232,7 @@ class TubeNote(Base, MixinBase):
     """
     __tablename__ = 'tube_note'
     id = Column("tube_note_id", types.Integer, primary_key=True, nullable=False)
-    tube_id = Column(types.Integer, ForeignKey("tube.tube_id"))
+    tube_id = Column(types.Integer, ForeignKey("tube.tube_id"), nullable=False)
 
 
 class Box(Base, MixinBase):
@@ -235,7 +257,7 @@ class BoxNote(Base, MixinBase):
     """
     __tablename__ = 'box_note'
     id = Column("box_note_id", types.Integer, primary_key=True, nullable=False)
-    box_id = Column(types.Integer, ForeignKey("box.box_id"))
+    box_id = Column(types.Integer, ForeignKey("box.box_id"), nullable=False)
 
 
 
