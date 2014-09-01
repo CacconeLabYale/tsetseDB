@@ -22,6 +22,14 @@ from bunch import Bunch
 from pkg_resources import Requirement, resource_filename
 
 
+infection_status_conversion = {"TENERAL": "not dissected",
+                               "DEAD": "not dissected",
+                               "negative": "negative",
+                               "-": "negative",
+                               "0": "negative",
+                               "+": "positive",
+                               "1": "positive",
+                               "positive": "positive", }
 
 species_names = ['Glossina fuscipes fuscipes',
                  'Glossina morsitans morsitans',
@@ -70,9 +78,34 @@ def get_village_id_map():
     return village_id_map
 
 
+def get_village_ids():
+    """
+    Returns `set` of village ID strings
+    :return: `set`
+    """
+    village_ids = []
+
+    with open(village_id_map_path, 'rb') as csv_file:
+        rows = csv.reader(csv_file, delimiter=',')
+        for pair in rows:
+            village_ids.append(pair[0])
+
+    return set(village_ids)
 
 
+def get_village_names():
+    """
+    Returns `set` of village NAME strings
+    :return: `set`
+    """
+    village_names = []
 
+    with open(village_id_map_path, 'rb') as csv_file:
+        rows = csv.reader(csv_file, delimiter=',')
+        for pair in rows:
+            village_names.append(pair[1])
+
+    return set(village_names)
 
 
 
