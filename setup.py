@@ -27,7 +27,8 @@ test_requirements = [
 setup(
     name='tsetseDB',
     version='0.0.1',
-    description='Code associated with the creation and maintenance of the sample database for our tsetse fly population genomics project.',
+    description='Code associated with the creation and maintenance of the sample database for our tsetse fly '
+                'population genomics project.',
     long_description=readme + '\n\n' + history,
     author='Gus Dunn',
     author_email='wadunn83@gmail.com',
